@@ -9,12 +9,12 @@ import bpio.ResponsePacketContents
 import bpio.StatusRequest
 import bpio.StatusResponse
 import com.google.flatbuffers.FlatBufferBuilder
-import java.nio.ByteBuffer
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.nio.ByteBuffer
 
 class BpioProtocolTest {
     @Test
