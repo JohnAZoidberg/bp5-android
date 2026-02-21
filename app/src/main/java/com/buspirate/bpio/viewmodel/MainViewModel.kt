@@ -80,6 +80,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun retryIfPending() {
+        if (_uiState.value.connectionStatus == "Connecting...") {
+            connect()
+        }
+    }
+
     fun clearError() {
         _uiState.update { it.copy(errorMessage = null) }
     }
