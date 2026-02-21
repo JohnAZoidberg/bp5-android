@@ -85,13 +85,14 @@ class UsbSerialManager(private val context: Context) {
             filter,
             ContextCompat.RECEIVER_EXPORTED,
         )
+        val intent = Intent(ACTION_USB_PERMISSION).apply { setPackage(context.packageName) }
         val flags =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.FLAG_MUTABLE
             } else {
                 0
             }
-        val permissionIntent = PendingIntent.getBroadcast(context, 0, Intent(ACTION_USB_PERMISSION), flags)
+        val permissionIntent = PendingIntent.getBroadcast(context, 0, intent, flags)
         usbManager.requestPermission(device, permissionIntent)
     }
 
