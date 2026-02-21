@@ -107,6 +107,8 @@ class UsbSerialManager(private val context: Context) {
                     ?: throw Exception("Failed to open USB device")
             serialPort.open(connection)
             serialPort.setParameters(BAUD_RATE, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            serialPort.dtr = true
+            serialPort.rts = true
             port = serialPort
             onResult(Result.success(Unit))
         } catch (e: Exception) {

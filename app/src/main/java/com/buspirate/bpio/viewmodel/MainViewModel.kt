@@ -73,7 +73,6 @@ class MainViewModel : ViewModel() {
     fun sendCommand(text: String) {
         if (text.isBlank()) return
         val manager = usbManager ?: return
-        appendLog("> $text")
         viewModelScope.launch(Dispatchers.IO) {
             val data = (text + "\r\n").toByteArray(Charsets.UTF_8)
             safeWrite(manager, BpioProtocol.buildDataWriteRequest(data))
