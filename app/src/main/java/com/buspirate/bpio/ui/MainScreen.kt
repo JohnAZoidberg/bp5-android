@@ -84,13 +84,24 @@ fun MainScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                onClick = {
-                    if (state.uartEnabled) viewModel.disableUart() else viewModel.enableUart()
-                },
-                enabled = state.connectionStatus == "Connected",
-            ) {
-                Text(if (state.uartEnabled) "Disable UART" else "Enable UART")
+            Row {
+                Button(
+                    onClick = {
+                        if (state.uartEnabled) viewModel.disableUart() else viewModel.enableUart()
+                    },
+                    enabled = state.connectionStatus == "Connected",
+                ) {
+                    Text(if (state.uartEnabled) "Disable UART" else "Enable UART")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        if (state.psuEnabled) viewModel.disablePsu() else viewModel.enablePsu()
+                    },
+                    enabled = state.connectionStatus == "Connected",
+                ) {
+                    Text(if (state.psuEnabled) "PSU Off" else "PSU On")
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))

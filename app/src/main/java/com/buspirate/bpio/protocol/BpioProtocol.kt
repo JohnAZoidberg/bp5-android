@@ -89,9 +89,9 @@ object BpioProtocol {
                 modeBitorderMsb = false,
                 modeBitorderLsb = false,
                 psuDisable = false,
-                psuEnable = true,
-                psuSetMv = 3300u,
-                psuSetMa = 300u,
+                psuEnable = false,
+                psuSetMv = 0u,
+                psuSetMa = 0u,
                 pullupDisable = false,
                 pullupEnable = false,
                 ioDirectionMask = 0u,
@@ -140,6 +140,44 @@ object BpioProtocol {
         ConfigurationRequest.startConfigurationRequest(builder)
         ConfigurationRequest.addMode(builder, modeStr)
         ConfigurationRequest.addModeConfiguration(builder, modeCfg)
+        val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
+        val packet =
+            RequestPacket.createRequestPacket(
+                builder,
+                VERSION_MAJOR,
+                VERSION_MINOR,
+                RequestPacketContents.ConfigurationRequest,
+                cfgReq,
+            )
+        builder.finish(packet)
+        return CobsCodec.encode(extractBytes(builder))
+    }
+
+    fun buildPsuEnableRequest(
+        voltageMv: UInt = 3300u,
+        currentMa: UShort = 300u.toUShort(),
+    ): ByteArray {
+        val builder = FlatBufferBuilder(64)
+        ConfigurationRequest.startConfigurationRequest(builder)
+        ConfigurationRequest.addPsuEnable(builder, true)
+        ConfigurationRequest.addPsuSetMv(builder, voltageMv)
+        ConfigurationRequest.addPsuSetMa(builder, currentMa)
+        val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
+        val packet =
+            RequestPacket.createRequestPacket(
+                builder,
+                VERSION_MAJOR,
+                VERSION_MINOR,
+                RequestPacketContents.ConfigurationRequest,
+                cfgReq,
+            )
+        builder.finish(packet)
+        return CobsCodec.encode(extractBytes(builder))
+    }
+
+    fun buildPsuDisableRequest(): ByteArray {
+        val builder = FlatBufferBuilder(64)
+        ConfigurationRequest.startConfigurationRequest(builder)
         ConfigurationRequest.addPsuDisable(builder, true)
         val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
         val packet =
@@ -198,6 +236,7 @@ object BpioProtocol {
                         firmwareVersion = "${sr.versionFirmwareMajor}.${sr.versionFirmwareMinor}",
                         hardwareVersion = "${sr.versionHardwareMajor}.${sr.versionHardwareMinor}",
                         currentMode = sr.modeCurrent ?: "Unknown",
+                        psuEnabled = sr.psuEnabled,
                     ),
                 )
             }

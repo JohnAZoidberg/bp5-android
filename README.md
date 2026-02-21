@@ -11,8 +11,11 @@ When the app launches it connects to the BusPirate and shows current status (fir
 
 ## Features
 
-Below the status information it has two buttons to enable or disable UART.
-When UART is enabled, it sends commands to the BP to enable UART and to receive and display every received character in a scrolling (readonly) textbox.
+Below the status information there are two toggle buttons:
+- **UART** - Enable or disable UART mode on the BusPirate.
+- **PSU** - Enable or disable the onboard power supply (3.3V/300mA). This is independent of UART mode so you can use an external VREF instead.
+
+When UART is enabled, every received character is displayed in a scrolling (readonly) textbox.
 At the very bottom there's a text input field where the user can type commands and submit them with a button next to it.
 
 ### Detailed scenarios
@@ -20,7 +23,7 @@ At the very bottom there's a text input field where the user can type commands a
 - The app needs to handle and correctly show current connection status of the buspirate
     - The buspirate can be plugged in and authenticated (by Android) at any time - both before the app launched and while it's running.
     - The buspirate can be unplugged at any time as well
-    - On connect the connection text and enable/disable UART buttons should show the correct status
+    - On connect the connection text, UART, and PSU buttons should show the correct status
 
 ## Source Code
 

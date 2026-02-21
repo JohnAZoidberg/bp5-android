@@ -20,6 +20,7 @@ data class UiState(
     val connectionStatus: String = "Disconnected",
     val deviceStatus: BpStatus? = null,
     val uartEnabled: Boolean = false,
+    val psuEnabled: Boolean = false,
     val logLines: List<String> = emptyList(),
     val errorMessage: String? = null,
 )
@@ -67,6 +68,20 @@ class MainViewModel : ViewModel() {
         val manager = usbManager ?: return
         viewModelScope.launch(Dispatchers.IO) {
             safeWrite(manager, BpioProtocol.buildUartDisableRequest())
+        }
+    }
+
+    fun enablePsu() {
+        val manager = usbManager ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            safeWrite(manager, BpioProtocol.buildPsuEnableRequest())
+        }
+    }
+
+    fun disablePsu() {
+        val manager = usbManager ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            safeWrite(manager, BpioProtocol.buildPsuDisableRequest())
         }
     }
 
@@ -150,6 +165,7 @@ class MainViewModel : ViewModel() {
                         it.copy(
                             deviceStatus = response.status,
                             uartEnabled = response.status.currentMode == "UART",
+                            psuEnabled = response.status.psuEnabled,
                         )
                     }
                 }
