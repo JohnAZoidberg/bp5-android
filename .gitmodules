@@ -1,0 +1,6 @@
+[submodule "BusPirate-BPIO2-flatbuffer-interface"]
+	path = BusPirate-BPIO2-flatbuffer-interface
+	url = https://github.com/DangerousPrototypes/BusPirate-BPIO2-flatbuffer-interface
+[submodule "BusPirate5-firmware"]
+	path = BusPirate5-firmware
+	url = https://github.com/DangerousPrototypes/BusPirate5-firmware
