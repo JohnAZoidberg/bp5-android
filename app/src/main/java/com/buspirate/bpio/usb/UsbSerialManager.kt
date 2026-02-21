@@ -83,7 +83,7 @@ class UsbSerialManager(private val context: Context) {
             context,
             permissionReceiver,
             filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_EXPORTED,
         )
         val flags =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
