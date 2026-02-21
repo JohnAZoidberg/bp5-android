@@ -40,6 +40,7 @@ sealed class BpioResponse {
 object BpioProtocol {
     private const val VERSION_MAJOR: UByte = 2u
     private const val VERSION_MINOR: UShort = 2u
+    private const val NUM_LEDS = 18
 
     fun buildStatusRequest(): ByteArray {
         val builder = FlatBufferBuilder(64)
@@ -56,13 +57,14 @@ object BpioProtocol {
         return CobsCodec.encode(extractBytes(builder))
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun buildUartEnableRequest(
         baudRate: UInt = 115200u,
         dataBits: UByte = 8u,
         parity: Boolean = false,
         stopBits: UByte = 1u,
     ): ByteArray {
-        val builder = FlatBufferBuilder(128)
+        val builder = FlatBufferBuilder(256)
         val modeStr = builder.createString("UART")
         val modeCfg =
             ModeConfiguration.createModeConfiguration(
@@ -81,30 +83,12 @@ object BpioProtocol {
                 txModulation = 0u,
                 rxSensor = 0u,
             )
-        val cfgReq =
-            ConfigurationRequest.createConfigurationRequest(
-                builder,
-                modeOffset = modeStr,
-                modeConfigurationOffset = modeCfg,
-                modeBitorderMsb = false,
-                modeBitorderLsb = false,
-                psuDisable = false,
-                psuEnable = false,
-                psuSetMv = 0u,
-                psuSetMa = 0u,
-                pullupDisable = false,
-                pullupEnable = false,
-                ioDirectionMask = 0u,
-                ioDirection = 0u,
-                ioValueMask = 0u,
-                ioValue = 0u,
-                ledResume = false,
-                ledColorOffset = 0,
-                printStringOffset = 0,
-                hardwareBootloader = false,
-                hardwareReset = false,
-                hardwareSelftest = false,
-            )
+        val ledColors = ConfigurationRequest.createLedColorVector(builder, UIntArray(NUM_LEDS) { 0u })
+        ConfigurationRequest.startConfigurationRequest(builder)
+        ConfigurationRequest.addMode(builder, modeStr)
+        ConfigurationRequest.addModeConfiguration(builder, modeCfg)
+        ConfigurationRequest.addLedColor(builder, ledColors)
+        val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
         val packet =
             RequestPacket.createRequestPacket(
                 builder,
@@ -140,6 +124,7 @@ object BpioProtocol {
         ConfigurationRequest.startConfigurationRequest(builder)
         ConfigurationRequest.addMode(builder, modeStr)
         ConfigurationRequest.addModeConfiguration(builder, modeCfg)
+        ConfigurationRequest.addLedResume(builder, true)
         val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
         val packet =
             RequestPacket.createRequestPacket(
