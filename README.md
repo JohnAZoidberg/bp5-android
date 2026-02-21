@@ -44,3 +44,7 @@ nix develop --command adb devices
 # Install on connected phone
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
+
+### CI
+
+Github actions checks all the lints and builds the application and uploads the APK for easy access.
