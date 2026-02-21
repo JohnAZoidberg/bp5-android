@@ -48,3 +48,13 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ### CI
 
 Github actions checks all the lints and builds the application and uploads the APK for easy access.
+
+### More Android debugging
+
+```
+# To wirelessly debug (Enable in the Android settings first and get the one time code there)
+adb pair 192.168.1.185:44845
+
+# View live logs of this app
+adb logcat -e com.buspirate.bpio
+``

@@ -81,7 +81,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun retryIfPending() {
-        if (_uiState.value.connectionStatus == "Connecting...") {
+        if (_uiState.value.connectionStatus != "Connected") {
             connect()
         }
     }
