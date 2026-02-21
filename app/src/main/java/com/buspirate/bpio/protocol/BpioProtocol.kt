@@ -89,8 +89,8 @@ object BpioProtocol {
                 modeBitorderMsb = false,
                 modeBitorderLsb = false,
                 psuDisable = false,
-                psuEnable = false,
-                psuSetMv = 0u,
+                psuEnable = true,
+                psuSetMv = 3300u,
                 psuSetMa = 300u,
                 pullupDisable = false,
                 pullupEnable = false,
@@ -122,6 +122,7 @@ object BpioProtocol {
         val modeStr = builder.createString("HiZ")
         ConfigurationRequest.startConfigurationRequest(builder)
         ConfigurationRequest.addMode(builder, modeStr)
+        ConfigurationRequest.addPsuDisable(builder, true)
         val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
         val packet =
             RequestPacket.createRequestPacket(
