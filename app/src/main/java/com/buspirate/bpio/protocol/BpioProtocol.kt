@@ -118,10 +118,28 @@ object BpioProtocol {
     }
 
     fun buildUartDisableRequest(): ByteArray {
-        val builder = FlatBufferBuilder(64)
+        val builder = FlatBufferBuilder(128)
         val modeStr = builder.createString("HiZ")
+        val modeCfg =
+            ModeConfiguration.createModeConfiguration(
+                builder,
+                speed = 0u,
+                dataBits = 0u,
+                parity = false,
+                stopBits = 0u,
+                flowControl = false,
+                signalInversion = false,
+                clockStretch = false,
+                clockPolarity = false,
+                clockPhase = false,
+                chipSelectIdle = false,
+                submode = 0u,
+                txModulation = 0u,
+                rxSensor = 0u,
+            )
         ConfigurationRequest.startConfigurationRequest(builder)
         ConfigurationRequest.addMode(builder, modeStr)
+        ConfigurationRequest.addModeConfiguration(builder, modeCfg)
         ConfigurationRequest.addPsuDisable(builder, true)
         val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
         val packet =
