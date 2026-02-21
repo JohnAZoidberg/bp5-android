@@ -1,5 +1,6 @@
 package com.buspirate.bpio.ui
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -41,6 +43,7 @@ fun MainScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
@@ -104,7 +107,41 @@ fun MainScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Log",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(
+                    onClick = {
+                        val text = viewModel.getLogText()
+                        val intent =
+                            Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, text)
+                            }
+                        context.startActivity(Intent.createChooser(intent, "Share log"))
+                    },
+                    enabled = state.logLines.isNotEmpty(),
+                ) {
+                    Icon(
+                        painter = painterResource(android.R.drawable.ic_menu_share),
+                        contentDescription = "Share log",
+                    )
+                }
+                IconButton(
+                    onClick = { viewModel.clearLog() },
+                    enabled = state.logLines.isNotEmpty(),
+                ) {
+                    Icon(
+                        painter = painterResource(android.R.drawable.ic_menu_delete),
+                        contentDescription = "Clear log",
+                    )
+                }
+            }
 
             LazyColumn(
                 state = listState,

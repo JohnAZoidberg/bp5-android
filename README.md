@@ -15,7 +15,8 @@ Below the status information there are two toggle buttons:
 - **UART** - Enable or disable UART mode on the BusPirate.
 - **PSU** - Enable or disable the onboard power supply (3.3V/300mA). This is independent of UART mode so you can use an external VREF instead.
 
-When UART is enabled, every received character is displayed in a scrolling (readonly) textbox.
+When UART is enabled, every received character is displayed in a scrolling (readonly) log.
+The log has share and clear buttons — share opens the Android share sheet to send the full log to another app, and clear empties it.
 At the very bottom there's a text input field where the user can type commands and submit them with a button next to it.
 
 ### Detailed scenarios

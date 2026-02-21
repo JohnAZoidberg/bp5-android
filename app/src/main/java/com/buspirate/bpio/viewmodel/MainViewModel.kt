@@ -94,6 +94,12 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun clearLog() {
+        _uiState.update { it.copy(logLines = emptyList()) }
+    }
+
+    fun getLogText(): String = _uiState.value.logLines.joinToString("\n")
+
     fun retryIfPending() {
         if (_uiState.value.connectionStatus != "Connected") {
             connect()
