@@ -68,7 +68,7 @@ adb pair 192.168.1.185:44845
 
 # View live logs of this app
 adb logcat -e com.buspirate.bpio
-``
+```
 
 ## Firmware
 
