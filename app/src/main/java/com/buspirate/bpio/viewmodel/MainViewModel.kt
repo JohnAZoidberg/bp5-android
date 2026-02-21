@@ -1,7 +1,12 @@
 package com.buspirate.bpio.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.buspirate.bpio.R
+import com.buspirate.bpio.flash.EcFlasher
+import com.buspirate.bpio.flash.FlashState
 import com.buspirate.bpio.model.BpStatus
 import com.buspirate.bpio.protocol.BpioProtocol
 import com.buspirate.bpio.protocol.BpioResponse
@@ -9,6 +14,7 @@ import com.buspirate.bpio.protocol.FrameAccumulator
 import com.buspirate.bpio.usb.UsbSerialManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +29,9 @@ data class UiState(
     val psuEnabled: Boolean = false,
     val logLines: List<String> = emptyList(),
     val errorMessage: String? = null,
+    val flashState: FlashState = FlashState.Idle,
+    val selectedFirmwareUri: Uri? = null,
+    val selectedFirmwareName: String? = null,
 )
 
 class MainViewModel : ViewModel() {
@@ -31,7 +40,9 @@ class MainViewModel : ViewModel() {
 
     private var usbManager: UsbSerialManager? = null
     private var readJob: Job? = null
+    private var flashJob: Job? = null
     private val accumulator = FrameAccumulator()
+    private var responseChannel: Channel<BpioResponse>? = null
 
     fun setUsbManager(manager: UsbSerialManager) {
         usbManager = manager
@@ -110,6 +121,73 @@ class MainViewModel : ViewModel() {
         _uiState.update { it.copy(errorMessage = null) }
     }
 
+    fun setFirmwareUri(
+        uri: Uri,
+        name: String,
+    ) {
+        _uiState.update { it.copy(selectedFirmwareUri = uri, selectedFirmwareName = name) }
+    }
+
+    fun startFlash(context: Context) {
+        val manager = usbManager ?: return
+        val uri = _uiState.value.selectedFirmwareUri ?: return
+
+        flashJob?.cancel()
+        flashJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                val channel = Channel<BpioResponse>(Channel.RENDEZVOUS)
+                responseChannel = channel
+
+                try {
+                    val imageData =
+                        context.contentResolver.openInputStream(uri)?.use {
+                            it.readBytes()
+                        } ?: throw Exception("Cannot read firmware file")
+
+                    val monitorData =
+                        context.resources.openRawResource(R.raw.npcx_monitor).use {
+                            it.readBytes()
+                        }
+
+                    val flasher =
+                        EcFlasher(
+                            sendAndReceive = { request ->
+                                safeWrite(manager, request)
+                                channel.receive()
+                            },
+                            sendConfig = { request ->
+                                safeWrite(manager, request)
+                                channel.receive()
+                            },
+                            onStateChanged = { state ->
+                                _uiState.update { it.copy(flashState = state) }
+                            },
+                        )
+
+                    flasher.flash(monitorData, imageData)
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(flashState = FlashState.Error(e.message ?: "Flash failed"))
+                    }
+                } finally {
+                    responseChannel = null
+                    channel.close()
+                }
+            }
+    }
+
+    fun cancelFlash() {
+        flashJob?.cancel()
+        flashJob = null
+        responseChannel?.close()
+        responseChannel = null
+        _uiState.update { it.copy(flashState = FlashState.Idle) }
+    }
+
+    fun resetFlashState() {
+        _uiState.update { it.copy(flashState = FlashState.Idle) }
+    }
+
     private fun sendStatusRequest() {
         val manager = usbManager ?: return
         viewModelScope.launch(Dispatchers.IO) {
@@ -132,6 +210,7 @@ class MainViewModel : ViewModel() {
         readJob?.cancel()
         readJob = null
         usbManager?.disconnect()
+        cancelFlash()
         _uiState.update {
             UiState(
                 connectionStatus = "Disconnected",
@@ -176,13 +255,21 @@ class MainViewModel : ViewModel() {
                     }
                 }
                 is BpioResponse.Configuration -> {
-                    if (response.error != null) {
-                        _uiState.update { it.copy(errorMessage = response.error) }
+                    val ch = responseChannel
+                    if (ch != null) {
+                        ch.trySend(response)
+                    } else {
+                        if (response.error != null) {
+                            _uiState.update { it.copy(errorMessage = response.error) }
+                        }
+                        sendStatusRequest()
                     }
-                    sendStatusRequest()
                 }
                 is BpioResponse.Data -> {
-                    if (response.data.isNotEmpty()) {
+                    val ch = responseChannel
+                    if (ch != null && !response.isAsync) {
+                        ch.trySend(response)
+                    } else if (response.data.isNotEmpty()) {
                         val text = String(response.data, Charsets.UTF_8)
                         appendData(text)
                     }
@@ -214,6 +301,7 @@ class MainViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        flashJob?.cancel()
         readJob?.cancel()
         usbManager?.disconnect()
     }

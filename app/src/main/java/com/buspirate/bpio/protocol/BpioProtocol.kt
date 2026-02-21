@@ -203,6 +203,60 @@ object BpioProtocol {
         return CobsCodec.encode(extractBytes(builder))
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun buildDataExchangeRequest(
+        dataWrite: ByteArray,
+        bytesRead: Int,
+    ): ByteArray {
+        val builder = FlatBufferBuilder(64 + dataWrite.size)
+        val dataVec = DataRequest.createDataWriteVector(builder, dataWrite.toUByteArray())
+        val dataReq =
+            DataRequest.createDataRequest(
+                builder,
+                startMain = false,
+                startAlt = false,
+                dataWriteOffset = dataVec,
+                bytesRead = bytesRead.toUShort(),
+                stopMain = false,
+                stopAlt = false,
+            )
+        val packet =
+            RequestPacket.createRequestPacket(
+                builder,
+                VERSION_MAJOR,
+                VERSION_MINOR,
+                RequestPacketContents.DataRequest,
+                dataReq,
+            )
+        builder.finish(packet)
+        return CobsCodec.encode(extractBytes(builder))
+    }
+
+    fun buildGpioConfigRequest(
+        ioDirectionMask: Int,
+        ioDirection: Int,
+        ioValueMask: Int = 0,
+        ioValue: Int = 0,
+    ): ByteArray {
+        val builder = FlatBufferBuilder(64)
+        ConfigurationRequest.startConfigurationRequest(builder)
+        ConfigurationRequest.addIoDirectionMask(builder, ioDirectionMask.toUByte())
+        ConfigurationRequest.addIoDirection(builder, ioDirection.toUByte())
+        ConfigurationRequest.addIoValueMask(builder, ioValueMask.toUByte())
+        ConfigurationRequest.addIoValue(builder, ioValue.toUByte())
+        val cfgReq = ConfigurationRequest.endConfigurationRequest(builder)
+        val packet =
+            RequestPacket.createRequestPacket(
+                builder,
+                VERSION_MAJOR,
+                VERSION_MINOR,
+                RequestPacketContents.ConfigurationRequest,
+                cfgReq,
+            )
+        builder.finish(packet)
+        return CobsCodec.encode(extractBytes(builder))
+    }
+
     fun parseResponse(cobsFrame: ByteArray): BpioResponse {
         val decoded = CobsCodec.decode(cobsFrame)
         val buf = ByteBuffer.wrap(decoded)

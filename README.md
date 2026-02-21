@@ -14,6 +14,28 @@ When the app launches it connects to the BusPirate and shows current status (fir
 Below the status information there are two toggle buttons:
 - **UART** - Enable or disable UART mode on the BusPirate.
 - **PSU** - Enable or disable the onboard power supply (3.3V/300mA). This is independent of UART mode so you can use an external VREF instead.
+- **EC Flash** - Flash NPCX EC firmware using the UUT (UART Update Tool) protocol. Select an ec.bin firmware file, and the app handles the full flash sequence: entering flash mode via GPIO, syncing with the EC, detecting the chip, uploading the embedded `npcx_monitor.bin`, flashing firmware in 4KB segments, and rebooting. Progress is shown throughout.
+
+#### EC Flash Wiring
+
+```
+BP5 IO0      --> EC VCC1_RST              (reset, active low)
+BP5 IO1      --[4.7-10K R]--> EC CR_SOUT1/FLPRG1  (flash mode strap)
+BP5 IO4 (TX) --> EC CR_SIN1               (UART RX)
+BP5 IO5 (RX) <-- EC CR_SOUT1             (UART TX)
+BP5 GND      --- EC GND
+```
+
+IO1 and IO5 connect to the same EC pin (CR_SOUT1/FLPRG1). IO1 goes through a 4.7-10K resistor for the FLPRG1 strap pulldown.
+
+#### EC Flash UI
+
+The flash section sits between the UART/PSU buttons and the log area. It has the following states:
+
+- **Idle** -- Shows a "Select ec.bin" button and the selected filename. Below that is a "Flash EC" button (enabled only when connected and a file is selected). The UART and PSU buttons are disabled while a flash is in progress.
+- **In progress** -- Displays the current step (Entering flash mode, Syncing, Detected chip, Uploading monitor, Flashing with percentage, Rebooting) with a progress bar. Flashing shows a determinate progress bar; other steps show an indeterminate one. A Cancel button aborts the operation.
+- **Done** -- Shows "Flash complete!" with a Done button to return to idle.
+- **Error** -- Shows the error message with a Dismiss button.
 
 When UART is enabled, every received character is displayed in a scrolling (readonly) log.
 The log has share and clear buttons — share opens the Android share sheet to send the full log to another app, and clear empties it.
