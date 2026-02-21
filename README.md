@@ -12,12 +12,19 @@ When the app launches it connects to the BusPirate and shows current status (fir
 ## Features
 
 Below the status information it has two buttons to enable or disable UART.
-When UART is enabled, it sends commands to the BP to enable UART and to receive and display everything in a scrolling (readonly) textbox.
+When UART is enabled, it sends commands to the BP to enable UART and to receive and display every received character in a scrolling (readonly) textbox.
 At the very bottom there's a text input field where the user can type commands and submit them with a button next to it.
+
+### Detailed scenarios
+
+- The app needs to handle and correctly show current connection status of the buspirate
+    - The buspirate can be plugged in and authenticated (by Android) at any time - both before the app launched and while it's running.
+    - The buspirate can be unplugged at any time as well
 
 ## Source Code
 
 The app is written in Kotlin and conforms to the regular Android coding practices. ktlint should be followed.
+The target is Android 15 and up.
 
 ### Building
 
@@ -58,3 +65,12 @@ adb pair 192.168.1.185:44845
 # View live logs of this app
 adb logcat -e com.buspirate.bpio
 ``
+
+## Firmware
+
+Testing that firwmare works with loopback UART:
+
+```
+> cd BusPirate-BPIO2-flatbuffer-interface/
+> nix-shell ../python-shell.nix --run "python python/uart_example.py -p /dev/ttyACM1 --mode buffered"
+```
