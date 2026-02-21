@@ -184,7 +184,7 @@ class MainViewModel : ViewModel() {
                 is BpioResponse.Data -> {
                     if (response.data.isNotEmpty()) {
                         val text = String(response.data, Charsets.UTF_8)
-                        appendLog(text.trimEnd('\r', '\n'))
+                        appendData(text)
                     }
                 }
                 is BpioResponse.Error -> {
@@ -196,10 +196,19 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun appendLog(line: String) {
+    private fun appendData(text: String) {
         _uiState.update { state ->
-            val newLines = state.logLines + line
-            state.copy(logLines = if (newLines.size > MAX_LOG_LINES) newLines.takeLast(MAX_LOG_LINES) else newLines)
+            val lines = state.logLines.toMutableList()
+            val pending = if (lines.isNotEmpty()) lines.removeAt(lines.size - 1) else ""
+            val combined = pending + text.replace("\r\n", "\n").replace("\r", "\n")
+            val parts = combined.split("\n")
+            // All parts except the last are complete lines; the last is the pending partial
+            lines.addAll(parts)
+            if (lines.size > MAX_LOG_LINES) {
+                state.copy(logLines = lines.takeLast(MAX_LOG_LINES))
+            } else {
+                state.copy(logLines = lines)
+            }
         }
     }
 
