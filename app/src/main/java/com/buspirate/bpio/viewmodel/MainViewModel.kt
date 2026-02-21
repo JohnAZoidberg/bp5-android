@@ -59,14 +59,14 @@ class MainViewModel : ViewModel() {
     fun enableUart() {
         val manager = usbManager ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            manager.write(BpioProtocol.buildUartEnableRequest())
+            safeWrite(manager, BpioProtocol.buildUartEnableRequest())
         }
     }
 
     fun disableUart() {
         val manager = usbManager ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            manager.write(BpioProtocol.buildUartDisableRequest())
+            safeWrite(manager, BpioProtocol.buildUartDisableRequest())
         }
     }
 
@@ -76,7 +76,7 @@ class MainViewModel : ViewModel() {
         appendLog("> $text")
         viewModelScope.launch(Dispatchers.IO) {
             val data = (text + "\r\n").toByteArray(Charsets.UTF_8)
-            manager.write(BpioProtocol.buildDataWriteRequest(data))
+            safeWrite(manager, BpioProtocol.buildDataWriteRequest(data))
         }
     }
 
@@ -87,7 +87,30 @@ class MainViewModel : ViewModel() {
     private fun sendStatusRequest() {
         val manager = usbManager ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            manager.write(BpioProtocol.buildStatusRequest())
+            safeWrite(manager, BpioProtocol.buildStatusRequest())
+        }
+    }
+
+    private fun safeWrite(
+        manager: UsbSerialManager,
+        data: ByteArray,
+    ) {
+        try {
+            manager.write(data)
+        } catch (_: Exception) {
+            handleDisconnect()
+        }
+    }
+
+    private fun handleDisconnect() {
+        readJob?.cancel()
+        readJob = null
+        usbManager?.disconnect()
+        _uiState.update {
+            UiState(
+                connectionStatus = "Disconnected",
+                errorMessage = "Device disconnected",
+            )
         }
     }
 
@@ -96,16 +119,20 @@ class MainViewModel : ViewModel() {
         readJob =
             viewModelScope.launch(Dispatchers.IO) {
                 val buffer = ByteArray(4096)
-                while (isActive) {
-                    val manager = usbManager ?: break
-                    val bytesRead = manager.read(buffer)
-                    if (bytesRead > 0) {
-                        val chunk = buffer.copyOf(bytesRead)
-                        val frames = accumulator.feed(chunk)
-                        for (frame in frames) {
-                            handleFrame(frame)
+                try {
+                    while (isActive) {
+                        val manager = usbManager ?: break
+                        val bytesRead = manager.read(buffer)
+                        if (bytesRead > 0) {
+                            val chunk = buffer.copyOf(bytesRead)
+                            val frames = accumulator.feed(chunk)
+                            for (frame in frames) {
+                                handleFrame(frame)
+                            }
                         }
                     }
+                } catch (_: Exception) {
+                    handleDisconnect()
                 }
             }
     }
