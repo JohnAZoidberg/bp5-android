@@ -20,6 +20,7 @@ At the very bottom there's a text input field where the user can type commands a
 - The app needs to handle and correctly show current connection status of the buspirate
     - The buspirate can be plugged in and authenticated (by Android) at any time - both before the app launched and while it's running.
     - The buspirate can be unplugged at any time as well
+    - On connect the connection text and enable/disable UART buttons should show the correct status
 
 ## Source Code
 
