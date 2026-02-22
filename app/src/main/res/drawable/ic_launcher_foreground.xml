@@ -1,0 +1,80 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Android Head: rounded rectangle in Bus Pirate orange -->
+    <path
+        android:fillColor="#F57C00"
+        android:pathData="M34,48 L74,48 Q78,48 78,52 L78,78 Q78,82 74,82 L34,82 Q30,82 30,78 L30,52 Q30,48 34,48 Z" />
+
+    <!-- Left antenna -->
+    <path
+        android:strokeColor="#F57C00"
+        android:strokeWidth="2.5"
+        android:pathData="M42,48 L38,38" />
+
+    <!-- Right antenna -->
+    <path
+        android:strokeColor="#F57C00"
+        android:strokeWidth="2.5"
+        android:pathData="M66,48 L70,38" />
+
+    <!-- Pirate Hat: black tricorn -->
+    <!-- Hat brim -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M24,50 Q26,42 38,42 L70,42 Q82,42 84,50 Q76,47 54,47 Q32,47 24,50 Z" />
+    <!-- Hat crown -->
+    <path
+        android:fillColor="#2C2C2C"
+        android:pathData="M36,42 Q37,26 54,24 Q71,26 72,42 Z" />
+    <!-- Hat front fold -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M40,42 Q41,30 54,28 Q67,30 68,42 Z" />
+    <!-- Hat brim curl left -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M24,50 Q22,44 28,40 Q32,42 24,50 Z" />
+    <!-- Hat brim curl right -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M84,50 Q86,44 80,40 Q76,42 84,50 Z" />
+
+    <!-- Skull emblem on hat (circle r=4 at 54,35) -->
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M54,31 A4,4 0 1,1 54,39 A4,4 0 1,1 54,31 Z" />
+    <!-- Skull crossbones -->
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1.5"
+        android:pathData="M49,38 L59,32" />
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1.5"
+        android:pathData="M49,32 L59,38" />
+
+    <!-- Left eye: white circle (visible eye) r=4.5 at 43,62 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,57.5 A4.5,4.5 0 1,1 43,66.5 A4.5,4.5 0 1,1 43,57.5 Z" />
+    <!-- Left eye pupil r=2 at 43,62 -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M43,60 A2,2 0 1,1 43,64 A2,2 0 1,1 43,60 Z" />
+
+    <!-- Eyepatch strap (diagonal across head) -->
+    <path
+        android:strokeColor="#212121"
+        android:strokeWidth="2.5"
+        android:pathData="M30,52 L78,72" />
+
+    <!-- Eyepatch: black ellipse over right eye (rx=6 ry=5.5 at 65,62) -->
+    <path
+        android:fillColor="#111111"
+        android:pathData="M65,56.5 A6,5.5 0 1,1 65,67.5 A6,5.5 0 1,1 65,56.5 Z" />
+
+</vector>
