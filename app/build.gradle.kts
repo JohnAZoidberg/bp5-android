@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.buspirate.bpio"
+    namespace = "me.danielschaefer.android.buspirate"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.buspirate.bpio"
+        applicationId = "me.danielschaefer.android.buspirate"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -49,7 +49,7 @@ android {
 ktlint {
     android.set(true)
     filter {
-        exclude("**/bpio/*.kt")
+        exclude("**/buspirate/*.kt")
     }
 }
 

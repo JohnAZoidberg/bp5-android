@@ -90,7 +90,7 @@ Github actions checks all the lints and builds the application and uploads the A
 adb pair 192.168.1.185:44845
 
 # View live logs of this app
-adb logcat -e com.buspirate.bpio
+adb logcat -e me.danielschaefer.android.buspirate
 ```
 
 ## Firmware
