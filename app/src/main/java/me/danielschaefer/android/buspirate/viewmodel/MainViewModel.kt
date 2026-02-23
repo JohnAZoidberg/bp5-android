@@ -287,7 +287,8 @@ class MainViewModel : ViewModel() {
         _uiState.update { state ->
             val lines = state.logLines.toMutableList()
             val pending = if (lines.isNotEmpty()) lines.removeAt(lines.size - 1) else ""
-            val combined = pending + text.replace("\r\n", "\n").replace("\r", "\n")
+            val cleaned = stripAnsiSequences(text)
+            val combined = pending + cleaned.replace("\r\n", "\n").replace("\r", "\n")
             val parts = combined.split("\n")
             // All parts except the last are complete lines; the last is the pending partial
             lines.addAll(parts)
@@ -297,6 +298,12 @@ class MainViewModel : ViewModel() {
                 state.copy(logLines = lines)
             }
         }
+    }
+
+    private fun stripAnsiSequences(text: String): String {
+        // Remove ANSI CSI escape sequences: ESC [ params command
+        // This covers CSI sequences (cursor movement, clearing, colors, etc.)
+        return text.replace(Regex("\u001b\\[[0-9;]*[A-Za-z]"), "")
     }
 
     override fun onCleared() {
