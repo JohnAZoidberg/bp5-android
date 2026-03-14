@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import me.danielschaefer.android.buspirate.R
+import me.danielschaefer.android.buspirate.flash.EC_RST_PIN
 import me.danielschaefer.android.buspirate.flash.EcFlasher
 import me.danielschaefer.android.buspirate.flash.FlashState
 import me.danielschaefer.android.buspirate.model.BpStatus
@@ -13,6 +14,7 @@ import me.danielschaefer.android.buspirate.protocol.BpioResponse
 import me.danielschaefer.android.buspirate.protocol.FrameAccumulator
 import me.danielschaefer.android.buspirate.usb.UsbSerialManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -182,6 +184,31 @@ class MainViewModel : ViewModel() {
         responseChannel?.close()
         responseChannel = null
         _uiState.update { it.copy(flashState = FlashState.Idle) }
+    }
+
+    fun resetEc() {
+        val manager = usbManager ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            // Assert RST low
+            safeWrite(
+                manager,
+                BpioProtocol.buildGpioConfigRequest(
+                    ioDirectionMask = 1 shl EC_RST_PIN,
+                    ioDirection = 1 shl EC_RST_PIN,
+                    ioValueMask = 1 shl EC_RST_PIN,
+                    ioValue = 0,
+                ),
+            )
+            delay(500)
+            // Release RST
+            safeWrite(
+                manager,
+                BpioProtocol.buildGpioConfigRequest(
+                    ioDirectionMask = 1 shl EC_RST_PIN,
+                    ioDirection = 0,
+                ),
+            )
+        }
     }
 
     fun resetFlashState() {

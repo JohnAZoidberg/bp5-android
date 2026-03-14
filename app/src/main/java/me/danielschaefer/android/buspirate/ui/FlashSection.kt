@@ -25,6 +25,7 @@ fun FlashSection(
     isConnected: Boolean,
     onSelectFile: () -> Unit,
     onFlash: () -> Unit,
+    onReset: () -> Unit,
     onCancel: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -48,11 +49,20 @@ fun FlashSection(
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Button(
-                    onClick = onFlash,
-                    enabled = isConnected && selectedFirmwareName != null,
-                ) {
-                    Text("Flash EC")
+                Row {
+                    Button(
+                        onClick = onFlash,
+                        enabled = isConnected && selectedFirmwareName != null,
+                    ) {
+                        Text("Flash EC")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(
+                        onClick = onReset,
+                        enabled = isConnected,
+                    ) {
+                        Text("Reset EC")
+                    }
                 }
             }
             is FlashState.EnteringFlashMode,

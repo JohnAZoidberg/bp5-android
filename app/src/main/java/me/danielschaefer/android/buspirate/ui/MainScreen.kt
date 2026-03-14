@@ -145,6 +145,7 @@ fun MainScreen(
                 isConnected = state.connectionStatus == "Connected",
                 onSelectFile = { filePicker.launch(arrayOf("application/octet-stream", "*/*")) },
                 onFlash = { viewModel.startFlash(context) },
+                onReset = { viewModel.resetEc() },
                 onCancel = { viewModel.cancelFlash() },
                 onDismiss = { viewModel.resetFlashState() },
             )
