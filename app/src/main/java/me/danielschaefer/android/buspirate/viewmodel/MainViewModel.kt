@@ -5,12 +5,11 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import me.danielschaefer.android.buspirate.R
-import me.danielschaefer.android.buspirate.flash.EC_BOOT_PIN
-import me.danielschaefer.android.buspirate.flash.EC_RST_PIN
 import me.danielschaefer.android.buspirate.flash.EcFlasher
 import me.danielschaefer.android.buspirate.flash.FlashState
 import me.danielschaefer.android.buspirate.model.BpStatus
 import me.danielschaefer.android.buspirate.protocol.BpioProtocol
+import me.danielschaefer.android.buspirate.settings.PinSettings
 import me.danielschaefer.android.buspirate.protocol.BpioResponse
 import me.danielschaefer.android.buspirate.protocol.FrameAccumulator
 import me.danielschaefer.android.buspirate.usb.UsbSerialManager
@@ -35,6 +34,8 @@ data class UiState(
     val flashState: FlashState = FlashState.Idle,
     val selectedFirmwareUri: Uri? = null,
     val selectedFirmwareName: String? = null,
+    val rstPin: Int = 7,
+    val bootPin: Int = 6,
 )
 
 class MainViewModel : ViewModel() {
@@ -42,6 +43,7 @@ class MainViewModel : ViewModel() {
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private var usbManager: UsbSerialManager? = null
+    private var pinSettings: PinSettings? = null
     private var readJob: Job? = null
     private var flashJob: Job? = null
     private val accumulator = FrameAccumulator()
@@ -49,6 +51,19 @@ class MainViewModel : ViewModel() {
 
     fun setUsbManager(manager: UsbSerialManager) {
         usbManager = manager
+    }
+
+    fun setPinSettings(settings: PinSettings) {
+        pinSettings = settings
+        _uiState.update { it.copy(rstPin = settings.rstPin.value, bootPin = settings.bootPin.value) }
+        viewModelScope.launch {
+            launch { settings.rstPin.collect { pin -> _uiState.update { it.copy(rstPin = pin) } } }
+            launch { settings.bootPin.collect { pin -> _uiState.update { it.copy(bootPin = pin) } } }
+        }
+    }
+
+    fun savePins(rstPin: Int, bootPin: Int) {
+        pinSettings?.save(rstPin, bootPin)
     }
 
     fun connect() {
@@ -174,6 +189,8 @@ class MainViewModel : ViewModel() {
                             onStateChanged = { state ->
                                 _uiState.update { it.copy(flashState = state) }
                             },
+                            rstPin = _uiState.value.rstPin,
+                            bootPin = _uiState.value.bootPin,
                         )
 
                     flasher.flash(monitorData, imageData)
@@ -198,14 +215,16 @@ class MainViewModel : ViewModel() {
 
     fun resetEc() {
         val manager = usbManager ?: return
+        val rst = _uiState.value.rstPin
+        val boot = _uiState.value.bootPin
         viewModelScope.launch(Dispatchers.IO) {
             // Assert RST low
             safeWrite(
                 manager,
                 BpioProtocol.buildGpioConfigRequest(
-                    ioDirectionMask = 1 shl EC_RST_PIN,
-                    ioDirection = 1 shl EC_RST_PIN,
-                    ioValueMask = 1 shl EC_RST_PIN,
+                    ioDirectionMask = 1 shl rst,
+                    ioDirection = 1 shl rst,
+                    ioValueMask = 1 shl rst,
                     ioValue = 0,
                 ),
             )
@@ -214,7 +233,7 @@ class MainViewModel : ViewModel() {
             safeWrite(
                 manager,
                 BpioProtocol.buildGpioConfigRequest(
-                    ioDirectionMask = (1 shl EC_RST_PIN) or (1 shl EC_BOOT_PIN),
+                    ioDirectionMask = (1 shl rst) or (1 shl boot),
                     ioDirection = 0,
                 ),
             )

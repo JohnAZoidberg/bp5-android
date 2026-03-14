@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -15,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import me.danielschaefer.android.buspirate.flash.FlashState
 
@@ -28,6 +31,7 @@ fun FlashSection(
     onReset: () -> Unit,
     onCancel: () -> Unit,
     onDismiss: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -49,7 +53,7 @@ fun FlashSection(
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = onFlash,
                         enabled = isConnected && selectedFirmwareName != null,
@@ -62,6 +66,13 @@ fun FlashSection(
                         enabled = isConnected,
                     ) {
                         Text("Reset EC")
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(onClick = onSettings) {
+                        Icon(
+                            painter = painterResource(android.R.drawable.ic_menu_manage),
+                            contentDescription = "Pin settings",
+                        )
                     }
                 }
             }

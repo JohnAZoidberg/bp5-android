@@ -53,6 +53,7 @@ fun MainScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var inputText by remember { mutableStateOf("") }
+    var showPinSettings by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
     val isFlashing =
@@ -148,7 +149,20 @@ fun MainScreen(
                 onReset = { viewModel.resetEc() },
                 onCancel = { viewModel.cancelFlash() },
                 onDismiss = { viewModel.resetFlashState() },
+                onSettings = { showPinSettings = true },
             )
+
+            if (showPinSettings) {
+                PinSettingsDialog(
+                    currentRstPin = state.rstPin,
+                    currentBootPin = state.bootPin,
+                    onSave = { rst, boot ->
+                        viewModel.savePins(rst, boot)
+                        showPinSettings = false
+                    },
+                    onDismiss = { showPinSettings = false },
+                )
+            }
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
