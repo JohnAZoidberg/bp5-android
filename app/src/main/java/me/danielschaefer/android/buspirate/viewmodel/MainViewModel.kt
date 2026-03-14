@@ -4,25 +4,25 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import me.danielschaefer.android.buspirate.R
-import me.danielschaefer.android.buspirate.flash.EcFlasher
-import me.danielschaefer.android.buspirate.flash.FlashState
-import me.danielschaefer.android.buspirate.model.BpStatus
-import me.danielschaefer.android.buspirate.protocol.BpioProtocol
-import me.danielschaefer.android.buspirate.settings.PinSettings
-import me.danielschaefer.android.buspirate.protocol.BpioResponse
-import me.danielschaefer.android.buspirate.protocol.FrameAccumulator
-import me.danielschaefer.android.buspirate.usb.UsbSerialManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import me.danielschaefer.android.buspirate.R
+import me.danielschaefer.android.buspirate.flash.EcFlasher
+import me.danielschaefer.android.buspirate.flash.FlashState
+import me.danielschaefer.android.buspirate.model.BpStatus
+import me.danielschaefer.android.buspirate.protocol.BpioProtocol
+import me.danielschaefer.android.buspirate.protocol.BpioResponse
+import me.danielschaefer.android.buspirate.protocol.FrameAccumulator
+import me.danielschaefer.android.buspirate.settings.PinSettings
+import me.danielschaefer.android.buspirate.usb.UsbSerialManager
 
 data class UiState(
     val connectionStatus: String = "Disconnected",
@@ -62,7 +62,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun savePins(rstPin: Int, bootPin: Int) {
+    fun savePins(
+        rstPin: Int,
+        bootPin: Int,
+    ) {
         pinSettings?.save(rstPin, bootPin)
     }
 

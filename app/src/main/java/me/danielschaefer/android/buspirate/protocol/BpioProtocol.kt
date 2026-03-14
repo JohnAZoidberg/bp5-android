@@ -11,8 +11,8 @@ import bpio.ResponsePacket
 import bpio.ResponsePacketContents
 import bpio.StatusRequest
 import bpio.StatusResponse
-import me.danielschaefer.android.buspirate.model.BpStatus
 import com.google.flatbuffers.FlatBufferBuilder
+import me.danielschaefer.android.buspirate.model.BpStatus
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 

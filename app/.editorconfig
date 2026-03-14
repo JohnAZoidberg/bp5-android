@@ -1,2 +1,5 @@
 [*.kt]
 ktlint_function_naming_ignore_when_annotated_with = Composable
+
+[src/main/java/bpio/**]
+ktlint = disabled

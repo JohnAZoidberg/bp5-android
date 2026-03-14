@@ -18,7 +18,10 @@ class PinSettings(context: Context) {
     private val _bootPin = MutableStateFlow(prefs.getInt(KEY_BOOT_PIN, EC_BOOT_PIN))
     val bootPin: StateFlow<Int> = _bootPin.asStateFlow()
 
-    fun save(rstPin: Int, bootPin: Int) {
+    fun save(
+        rstPin: Int,
+        bootPin: Int,
+    ) {
         prefs.edit()
             .putInt(KEY_RST_PIN, rstPin)
             .putInt(KEY_BOOT_PIN, bootPin)

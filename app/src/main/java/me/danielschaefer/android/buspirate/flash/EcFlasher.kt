@@ -1,9 +1,9 @@
 package me.danielschaefer.android.buspirate.flash
 
-import me.danielschaefer.android.buspirate.protocol.BpioProtocol
-import me.danielschaefer.android.buspirate.protocol.BpioResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import me.danielschaefer.android.buspirate.protocol.BpioProtocol
+import me.danielschaefer.android.buspirate.protocol.BpioResponse
 
 sealed class FlashState {
     data object Idle : FlashState()

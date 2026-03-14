@@ -23,13 +23,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-private val PIN_LABELS = (0..7).map { index ->
-    when (index) {
-        4 -> "IO4 (UART TX)"
-        5 -> "IO5 (UART RX)"
-        else -> "IO$index"
+private val PIN_LABELS =
+    (0..7).map { index ->
+        when (index) {
+            4 -> "IO4 (UART TX)"
+            5 -> "IO5 (UART RX)"
+            else -> "IO$index"
+        }
     }
-}
 private val UART_PINS = setOf(4, 5)
 
 @OptIn(ExperimentalMaterial3Api::class)
