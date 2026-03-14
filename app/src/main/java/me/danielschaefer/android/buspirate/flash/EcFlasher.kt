@@ -25,13 +25,15 @@ sealed class FlashState {
     data class Error(val message: String) : FlashState()
 }
 
-private const val IO0 = 0 // RST
-private const val IO1 = 1 // FLPRG1
+const val EC_RST_PIN = 7
+const val EC_BOOT_PIN = 6
 
 class EcFlasher(
     private val sendAndReceive: suspend (ByteArray) -> BpioResponse,
     private val sendConfig: suspend (ByteArray) -> BpioResponse,
     private val onStateChanged: (FlashState) -> Unit,
+    private val rstPin: Int = EC_RST_PIN,
+    private val bootPin: Int = EC_BOOT_PIN,
 ) {
     suspend fun flash(
         monitorData: ByteArray,
@@ -48,28 +50,28 @@ class EcFlasher(
 
     private suspend fun enterFlashMode() {
         onStateChanged(FlashState.EnteringFlashMode)
-        // Set IO0 and IO1 as outputs, both low
+        // Set rstPin and bootPin as outputs, both low
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = (1 shl IO0) or (1 shl IO1),
-                ioDirection = (1 shl IO0) or (1 shl IO1),
-                ioValueMask = (1 shl IO0) or (1 shl IO1),
+                ioDirectionMask = (1 shl rstPin) or (1 shl bootPin),
+                ioDirection = (1 shl rstPin) or (1 shl bootPin),
+                ioValueMask = (1 shl rstPin) or (1 shl bootPin),
                 ioValue = 0,
             ),
         )
         delay(100)
-        // Release RST (IO0 -> input), keep FLPRG1 low
+        // Release RST (rstPin -> input), keep FLPRG1 low
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = 1 shl IO0,
+                ioDirectionMask = 1 shl rstPin,
                 ioDirection = 0,
             ),
         )
         delay(1000)
-        // Release FLPRG1 (IO1 -> input)
+        // Release FLPRG1 (bootPin -> input)
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = 1 shl IO1,
+                ioDirectionMask = 1 shl bootPin,
                 ioDirection = 0,
             ),
         )
@@ -179,9 +181,9 @@ class EcFlasher(
         // Assert RST low
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = 1 shl IO0,
-                ioDirection = 1 shl IO0,
-                ioValueMask = 1 shl IO0,
+                ioDirectionMask = 1 shl rstPin,
+                ioDirection = 1 shl rstPin,
+                ioValueMask = 1 shl rstPin,
                 ioValue = 0,
             ),
         )
@@ -189,7 +191,7 @@ class EcFlasher(
         // Release RST
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = 1 shl IO0,
+                ioDirectionMask = 1 shl rstPin,
                 ioDirection = 0,
             ),
         )

@@ -19,14 +19,14 @@ Below the status information there are two toggle buttons:
 #### EC Flash Wiring
 
 ```
-BP5 IO0      --> EC VCC1_RST              (reset, active low)
-BP5 IO1      --[4.7-10K R]--> EC CR_SOUT1/FLPRG1  (flash mode strap)
+BP5 IO7      --> EC VCC1_RST              (reset, active low)
+BP5 IO6      --[4.7-10K R]--> EC CR_SOUT1/FLPRG1  (flash mode strap)
 BP5 IO4 (TX) --> EC CR_SIN1               (UART RX)
 BP5 IO5 (RX) <-- EC CR_SOUT1             (UART TX)
 BP5 GND      --- EC GND
 ```
 
-IO1 and IO5 connect to the same EC pin (CR_SOUT1/FLPRG1). IO1 goes through a 4.7-10K resistor for the FLPRG1 strap pulldown.
+IO6 and IO5 connect to the same EC pin (CR_SOUT1/FLPRG1). IO6 goes through a 4.7-10K resistor for the FLPRG1 strap pulldown.
 
 #### EC Flash UI
 
