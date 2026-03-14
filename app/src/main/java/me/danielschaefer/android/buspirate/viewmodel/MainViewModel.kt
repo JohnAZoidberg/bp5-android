@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import me.danielschaefer.android.buspirate.R
+import me.danielschaefer.android.buspirate.flash.EC_BOOT_PIN
 import me.danielschaefer.android.buspirate.flash.EC_RST_PIN
 import me.danielschaefer.android.buspirate.flash.EcFlasher
 import me.danielschaefer.android.buspirate.flash.FlashState
@@ -141,6 +142,15 @@ class MainViewModel : ViewModel() {
                 responseChannel = channel
 
                 try {
+                    if (!_uiState.value.psuEnabled) {
+                        safeWrite(manager, BpioProtocol.buildPsuEnableRequest())
+                        channel.receive()
+                    }
+                    if (!_uiState.value.uartEnabled) {
+                        safeWrite(manager, BpioProtocol.buildUartEnableRequest())
+                        channel.receive()
+                    }
+
                     val imageData =
                         context.contentResolver.openInputStream(uri)?.use {
                             it.readBytes()
@@ -200,11 +210,11 @@ class MainViewModel : ViewModel() {
                 ),
             )
             delay(500)
-            // Release RST
+            // Release RST and FLPRG to input
             safeWrite(
                 manager,
                 BpioProtocol.buildGpioConfigRequest(
-                    ioDirectionMask = 1 shl EC_RST_PIN,
+                    ioDirectionMask = (1 shl EC_RST_PIN) or (1 shl EC_BOOT_PIN),
                     ioDirection = 0,
                 ),
             )

@@ -188,10 +188,10 @@ class EcFlasher(
             ),
         )
         delay(500)
-        // Release RST
+        // Release RST and FLPRG to input
         sendConfig(
             BpioProtocol.buildGpioConfigRequest(
-                ioDirectionMask = 1 shl rstPin,
+                ioDirectionMask = (1 shl rstPin) or (1 shl bootPin),
                 ioDirection = 0,
             ),
         )
